@@ -1,0 +1,21 @@
+{
+	"basic":{
+		"listen_ipv4": "127.0.0.1",
+		"listen_port": 5060,
+		"upper_ipv4": "127.0.0.1",
+		"upper_port": 9000,
+		"log_path": "logfile"
+	},
+	"machine":[
+		{
+			"type": "XINGZHI",
+			"ipv4_addr": "10.168.1.112",
+			"port": 3080
+		},
+		{
+			"type": "XINGZHI",
+			"ipv4_addr": "10.168.1.200",
+			"port": 3080
+		}
+	]
+}
