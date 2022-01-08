@@ -118,6 +118,7 @@ void InsPack::Set(const uint8_t &instype, const uint8_t *reserve, const uint8_t 
 const uint8_t 
 InsParser::Parse(const uint8_t *instruction, const ssize_t length)
 {
+	LOGDBG<<"Parsing Now "<<length<<" Bytes long";
 	// read  instruction front and end parts
 	// check instruction healthy state by 
 	// checking length if not less than min size,
@@ -128,7 +129,11 @@ InsParser::Parse(const uint8_t *instruction, const ssize_t length)
 	// if no error, we know which Instruction it is,
 	// store above info and return its Instruction ID
 	/* std::cout<<"InsParser: get length "<<length<<std::endl; */
-	if(length<INSTRUCTION_MINIMAL_SIZE) return -1;
+	if(length<INSTRUCTION_MINIMAL_SIZE)
+	{
+		LOGWARN<<"Packet Too Short";
+		return -1;
+	}
 
 	frame_before_content front_checker;
 	frame_after_content back_checker;
@@ -183,8 +188,9 @@ InsParser::Parse(const uint8_t *instruction, const ssize_t length)
 	uint8_t row_objid, row_opeid;
 	/* printf("Packet ObjectId: %02x ; OperationType: %02x\n", */
 	/* 		front_checker.object_id,front_checker.operation_type); */
-	reader = new csv::CSVReader("./GB25280-2016.csv");
-	for(csv::CSVRow& row: *reader)
+	/* reader = new csv::CSVReader("./GB25280-2016.csv"); */
+	csv::CSVReader reader("./GB25280-2016.csv");
+	for(csv::CSVRow& row: reader)
 	{
 			/* printf("here0\n"); */
 			/* printf("ObjectID:%02x\n",front_checker.object_id); */
@@ -197,10 +203,13 @@ InsParser::Parse(const uint8_t *instruction, const ssize_t length)
 		if(row_objid==front_checker.object_id
 				&& row_opeid==front_checker.operation_type)
 		{
+			LOGDBG<<"Find Target Row from csv";
 			/* printf("This Row ObjecID: %02x; OperationType: %02x\n",row_objid,row_opeid); */
 			strcpy(InsName,row["InsType"].get<>().c_str());
+			LOGDBG<<"InsName: "<<InsName;
 			/* printf("%s\n",InsName); */
 			InsType=row["Number"].get<uint8_t>();
+			/* LOGDBG<<"InsType: "<<InsType; */
 			ObjectId=front_checker.object_id;
 			OperationType=front_checker.operation_type;
 			SenderID=front_checker.sender_id;
@@ -211,6 +220,19 @@ InsParser::Parse(const uint8_t *instruction, const ssize_t length)
 			memcpy(Reserve,front_checker.reserve,5);
 			content_len=length-sizeof(front_checker)-sizeof(back_checker);
 			memcpy(Content, instruction+sizeof(front_checker), content_len);
+
+			LOGDBG<<"ContentLength: "<<content_len;
+			
+			/* LOGDBG<<std::hex<<InsType; */
+			/* LOGDBG<<std::hex<<OperationType; */
+			/* LOGDBG<<std::hex<<SenderID; */
+			/* LOGDBG<<std::hex<<ReceiverID; */
+			/* LOGDBG<<std::hex<<DataLinkCode; */
+			/* LOGDBG<<std::hex<<AreaID; */
+			/* LOGDBG<<std::hex<<IntersectionID; */
+			/* LOGDBG<<std::hex<<Reserve; */
+
+
 			/* printf("%02x\n",InsType); */
 			/* printf("%02x\n",OperationType); */
 			/* printf("%02x\n",SenderID); */
@@ -219,16 +241,13 @@ InsParser::Parse(const uint8_t *instruction, const ssize_t length)
 			/* printf("%02x\n",AreaID); */
 			/* printf("%04x\n",IntersectionID); */
 			/* printf("%02x\n",Reserve); */
-			/* printf("%02x\n",InsType); */
-			delete reader;
+			/* delete reader; */
+			LOGDBG<<"Deconstruct csv reader";
 			parsed=true;	
 			return InsType;
-
 		}
 	}
-	printf("Not Found Instruction\n");
-			delete reader;	
+	LOGWARN<<"Not Found Instruction";
+	/* delete reader; */	
 	return -1;
-
-
 };

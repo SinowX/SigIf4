@@ -30,10 +30,10 @@ namespace  IFTYPE{
 
 
 namespace IFACTION{
-	const char* Query="query";
-	const char* QueryRes="query_res";
-	const char* Setting="setting";
-	const char* SettingRes="setting_res";
+	const char* Query="Query";
+	const char* QueryRes="QueryReply";
+	const char* Setting="Setting";
+	const char* SettingRes="SettingReply";
 };
 
 namespace RESERVE

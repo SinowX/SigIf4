@@ -174,7 +174,8 @@ class InsParser
     uint8_t *buff;
     ssize_t buff_len;
     ssize_t buff_current_len;
-    csv::CSVReader *reader;
+    /* csv::CSVReader *reader; */
+
 		bool parsed;
 };
 

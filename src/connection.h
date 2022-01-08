@@ -64,11 +64,33 @@ class PackQ: noncopyable
 class ConnInfo: noncopyable
 {
 	public:
-		ConnInfo(std::string ipv4_addr, const uint16_t port)
+		ConnInfo(std::string ipv4_addr, const uint16_t port, bool is_upper=false)
 			: port_(port), ipv4_addr_(ipv4_addr)
 		{
 			fd_ = InitUdpSocket(port, ipv4_addr.c_str());
 			addr_ = InitSocketAddr(port, ipv4_addr.c_str());
+			if(is_upper)
+			{
+				if(bind(fd_, (struct sockaddr*)&addr_, sizeof(addr_))<0)
+				{
+					LOGWARN<<"Bind Failed: "<<strerror(errno);
+				}
+
+				int flags = 0;
+			 	if((flags=fcntl(fd_, F_GETFL, 0)<0))
+				{
+					LOGWARN<<"fcntl() GETFL Failed: "<<strerror(errno);
+				}else{
+					if((flags=fcntl(fd_, F_SETFL, flags | O_NONBLOCK)<0))
+					{
+						LOGWARN<<"fcntl() SETFL Failed: "<<strerror(errno);
+					}else{
+						LOGINFO<<"Init Upper Success, fd: "<<fd_<<" addr: "<<ipv4_addr_<<":"<<port_;
+					}
+				}
+			}else{
+				LOGINFO<<"Init Connection Success";
+			}
 		}
 		
 		// wait for the 1st pack for wait seconds
@@ -76,38 +98,77 @@ class ConnInfo: noncopyable
 		int ReceiveAll()
 		{
 			LOGDBG<<"Trying ReceiveALl Packet";
-			static char read_buff[1000];
-			int n=-1;
-			while((n=recvfrom(fd_, read_buff, 1000, 0, NULL, 0)>0))
+			static char read_buff[8192]{0};
+			ssize_t n=0;
+			/* n=recvfrom(fd_, read_buff, 128, 0, NULL, 0); */
+
+			/* LOGDBG<<"Get "<<n<<" Bytes"; */
+			
+			while((n=recvfrom(fd_, read_buff, 8192, 0, NULL, 0))>0)
 			{
-				LOGDBG<<"Get One Packet "<<n<<"B";
-				GetPackQ().push(std::string(read_buff));
+				/* LOGDBG<<"Get: "<<read_buff; */
+				if(n==1)
+				{
+					LOGDBG<<"Only Get 1 Byte, Continue";
+					continue;
+				}
+				LOGDBG<<"Get One Packet "<<n<<" Bytes";
+				/* GetPackQ().push(std::string(read_buff)); */
+				PackQ_Push(std::string(read_buff, read_buff+n));
 			}
-			LOGDBG<<"Now Containing "<<GetPackQ().size()<<" Packets";
+			LOGDBG<<"Now Containing "<<PackQ_Size()<<" Packets";
 			return 0;
 		}
 
 		int Send(std::string data)
 		{
-			if(data.size()!=sendto(fd_,data.c_str(), data.size(), 0, (sockaddr*)&addr_, sizeof(addr_)))
-			{
-				if(data.size()<0)
-				{
-					/* LOGWARN("send failed"); */
-					return -1;
-				}else{
-					/* LOGWARN("send packet unfinished"); */
-					return -1;
-				}
-			}else{
-				return data.size();
-			}
+			ssize_t n=0;
+			n=sendto(fd_,data.c_str(), data.size(), 0, (sockaddr*)&addr_, sizeof(addr_));
+			LOGINFO<<"Sent "<<n<<" Bytes";
+			return n;
+			/* if((n=sendto(fd_,data.c_str(), data.size(), 0, (sockaddr*)&addr_, sizeof(addr_)))!=data.size()) */
+			/* { */
+			/* 	if(n<0) */
+			/* 	{ */
+			/* 		LOGWARN<<"send failed: "<<strerror(errno); */
+			/* 		return -1; */
+			/* 	}else{ */
+			/* 		LOGWARN<<"send packet unfinished"; */
+			/* 		LOGDBG<<"send "<<n<<" Bytes"; */
+			/* 		return -1; */
+			/* 	} */
+			/* }else{ */
+			/* 	LOGDBG<<"send "<<n<<" Bytes"; */
+			/* 	LOGDBG<<"Conn: "<<ipv4_addr_<<":"<<port_; */
+			/* 	return n; */
+			/* } */
 		}
 
-		std::queue<std::string>& GetPackQ()
+		int PackQ_Push(std::string data)
 		{
-			return recv_pack_q_;
+			std::lock_guard<std::mutex> lk(q_mtx_);
+			recv_pack_q_.push(data);
+			return recv_pack_q_.size();
 		}
+
+		int PackQ_Size()
+		{
+			std::lock_guard<std::mutex> lk(q_mtx_);
+			return recv_pack_q_.size();
+		}
+
+		std::string PackQ_PopFront()
+		{
+			std::lock_guard<std::mutex> lk(q_mtx_);
+			std::string res = recv_pack_q_.front();
+			recv_pack_q_.pop();
+			return res;
+		}
+
+		/* std::queue<std::string>& GetPackQ() */
+		/* { */
+		/* 	return recv_pack_q_; */
+		/* } */
 
 
 		const std::string& GetIpv4() const {return ipv4_addr_;}
@@ -122,11 +183,16 @@ class ConnInfo: noncopyable
 			memset(&addr, 0, sizeof(struct sockaddr_in));
 			addr.sin_family = AF_INET;
 			addr.sin_port=htons(port);
-			if(ipaddr!=nullptr)
-				addr.sin_addr.s_addr = inet_addr(ipaddr);
-			else
-				/* addr.sin_addr.s_addr = INADDR_ANY; */
+			if(ipaddr==nullptr)
+			{
 				addr.sin_addr.s_addr = inet_addr("0.0.0.0");
+				LOGINFO<<"Not Provided Address";
+			}
+			else
+			{
+				addr.sin_addr.s_addr = inet_addr(ipaddr);
+				LOGINFO<<"Provided Address: "<<ipaddr<<":"<<port;
+			}
 			return addr;
 		}
 
@@ -135,22 +201,23 @@ class ConnInfo: noncopyable
 			int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 			if(sockfd<0)
 			{
-				/* LOGWARN("init socket fd failed"); */
-				/* Reset(); */
+				LOGWARN<<"Init Socket Fd Failed";
 				return -1;
 			}
-			struct sockaddr_in addr = InitSocketAddr(port, ipaddr);
+			LOGINFO<<"Init Socket Fd Success";
 
-			if(bind(sockfd, (struct sockaddr*)&addr,sizeof(addr))==-1)
-			{
-				/* LOGWARN("bind failed"); */
-				/* Reset(); */
-				return -1;
-			}
+			/* struct sockaddr_in addr = InitSocketAddr(port, ipaddr); */
+
+			/* if(bind(sockfd, (struct sockaddr*)&addr,sizeof(addr))==-1) */
+			/* { */
+			/* 	LOGWARN<<"Bind socket fd failed:"<<strerror(errno); */
+			/* 	return -1; */
+			/* } */
 			return sockfd;
 		}
 
 		std::queue<std::string> recv_pack_q_;
+		std::mutex q_mtx_;
 		std::string ipv4_addr_;
 		int fd_{0};
 		uint16_t port_{0};
@@ -180,6 +247,8 @@ class ConnMap :noncopyable
 					LOGWARN<<"Unable Find With "<<key;
 					return nullptr;
 				}else{
+					LOGINFO<<"Get Conn: "<<it->second->GetIpv4()<<":"
+						<<it->second->GetPort();
 					return it->second;
 				}
 			}
@@ -188,6 +257,7 @@ class ConnMap :noncopyable
 		{
 			std::lock_guard<std::mutex> lk(mtx_);
 			conn_map_.insert({ptr->GetIpv4(), ptr});
+			LOGINFO<<"Add new conn\n"<<InspectConnMap().rdbuf();
 			return conn_map_.size();
 		}
 
@@ -195,6 +265,7 @@ class ConnMap :noncopyable
 		{
 			std::lock_guard<std::mutex> lk(mtx_);
 			conn_map_.erase(key);
+			LOGDBG<<"Drop conn\n"<<InspectConnMap().rdbuf();
 			return conn_map_.size();
 		}
 		std::stringstream InspectConnMap()
@@ -202,7 +273,7 @@ class ConnMap :noncopyable
 			std::stringstream ss;
 			for(auto it:conn_map_)
 			{
-				ss<<"key: "<<it.first<<" conn_ip: "<<it.second->GetIpv4()
+				ss<<"\tkey: "<<it.first<<" conn_ip: "<<it.second->GetIpv4()
 					<<" conn_port: "<<it.second->GetPort()
 					<<" conn_fd: "<<it.second->GetFd()<<"\n";
 			}
@@ -247,7 +318,21 @@ class TaskMap: noncopyable
 		void Add(TaskPtr ptr)
 		{
 			std::lock_guard<std::mutex> lk(mtx_);
-			task_map_.insert({ptr->ipv4_addr,ptr});
+			/* ptr->ipv4_addr+ptr->task_type; */
+			task_map_.insert({ptr->task_type,ptr});
+			LOGINFO<<"Added a Task"<<ptr->ipv4_addr<<" "<<ptr->task_type;
+			LOGDBG<<"Current TaskMap: \n"<<InspectTaskMap().rdbuf();
+		}
+		
+		std::stringstream InspectTaskMap()
+		{
+			std::stringstream ss;
+			for(auto it: task_map_)
+			{
+				ss<<"\tKey: "<<it.first<<" Value: "<<it.second->ipv4_addr
+					<<" "<<it.second->task_type<<" "<<it.second->timestamp<<"\n";
+			}
+			return ss;
 		}
 		
 
@@ -261,6 +346,7 @@ class TaskMap: noncopyable
 			bool valid;
 		};
 		
+		// key is ipv4.append(task_type)
 		ItBool Get(std::string key)
 		{
 			/* std::lock_guard<std::mutex> lk(mtx_); */
@@ -269,13 +355,23 @@ class TaskMap: noncopyable
 			mtx_.unlock();
 
 			if(it!=task_map_.end())
+			{
+				LOGINFO<<"Found Target Task";
+				LOGDBG<<"Current Task Map\n"<<InspectTaskMap().rdbuf();
 				return ItBool{it,true};
-			else return ItBool{it,false};
+			}else{
+				LOGWARN<<"Failed to Find Target";
+				LOGDBG<<"Current Task Map\n"<<InspectTaskMap().rdbuf();
+				return ItBool{it,false};
+			}
 		}
 		void Drop(decltype(task_map_)::iterator it)
 		{
 			std::lock_guard<std::mutex> lk(mtx_);
+			LOGINFO<<"Droping a Task "<<"key: "<<it->first<<" "<<it->second->ipv4_addr
+					<<" "<<it->second->task_type<<" "<<it->second->timestamp<<"\n";
 			task_map_.erase(it);
+			LOGDBG<<"Current Task Map\n"<<InspectTaskMap().rdbuf();
 		}
 };
 
