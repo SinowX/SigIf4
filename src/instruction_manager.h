@@ -67,7 +67,7 @@ class InsPack
       /* delete [] buff; */
     }
     // Set() judge which type of package is to be used by arguements and set corrisponding infomation
-    void Set(const uint8_t &instype, const uint8_t *reserve=RESERVE::DEFAULT,const uint8_t* content=nullptr, const ssize_t content_len=0);
+    void Set(const uint8_t &instype, const uint8_t *reserve=RESERVE::DEFAULT,const uint8_t* content=nullptr, const ssize_t content_len=0, const uint8_t num=0);
     // Return Packedup instruction package, else -1 for unset state
     const uint8_t* GetBuff() const{return buff;};
     // Return instruction buff real length
@@ -77,7 +77,7 @@ class InsPack
 
   private:
     uint8_t *buff;
-    ssize_t buff_len;
+    ssize_t buff_len; // no use ?
     ssize_t buff_current_len;
 		bool valid;
     /* InsPack(const InsPack&); // non construction-copyable */

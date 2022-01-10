@@ -7,3 +7,5 @@ Logger::Logger(const std::string initFilePath)
 }
 
 Logger* Logger::instance_ = 0;
+
+	

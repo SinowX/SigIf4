@@ -59,7 +59,7 @@ const uint8_t InsManager::GetInsType(uint8_t operation, uint8_t object)
 }
 
 
-void InsPack::Set(const uint8_t &instype, const uint8_t *reserve, const uint8_t *content, const ssize_t content_len)
+void InsPack::Set(const uint8_t &instype, const uint8_t *reserve, const uint8_t *content, const ssize_t content_len, const uint8_t num)
 {
 	buff = new uint8_t[MAX_BUFFER_LENGTH];
 	InsManager handle;
@@ -100,6 +100,11 @@ void InsPack::Set(const uint8_t &instype, const uint8_t *reserve, const uint8_t 
 	memcpy(buff+buff_current_len,reserve,5*sizeof(uint8_t));
 	buff_current_len+=5*sizeof(uint8_t);
 	//set content
+	if(num!=0)
+	{
+		memcpy(buff+buff_current_len, &num, 1);	
+		buff_current_len+=1;
+	}
 	memcpy(buff+buff_current_len, content, content_len);	
 	buff_current_len+=content_len;
 	//set frame_check
@@ -247,7 +252,9 @@ InsParser::Parse(const uint8_t *instruction, const ssize_t length)
 			return InsType;
 		}
 	}
-	LOGWARN<<"Not Found Instruction";
+	LOGWARN<<"Not Found Instruction, ObjectId: "<<std::hex<<unsigned(front_checker.object_id)
+		<<", OperationType: "<<std::hex<<unsigned(front_checker.operation_type);
+	
 	/* delete reader; */	
 	return -1;
 };

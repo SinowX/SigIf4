@@ -51,6 +51,7 @@ bool CheckIfValid(nlohmann::basic_json<>& rqs)
 	// data check
 	if(!rqs["meta"]["action"].get<std::string>().compare("setting"))
 	{
+		bool typeValid{false};
 		LOGINFO<<"Request is Setting";
 		if(rqs["data"].is_null()||!rqs["data"].is_object())
 			return false;
@@ -59,18 +60,31 @@ bool CheckIfValid(nlohmann::basic_json<>& rqs)
 
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::ActionTable))
 		{
-			if(data["action_id"].is_null()||!data["action_id"].is_number_integer()
-					||data["plan_id"].is_null()||!data["plan_id"].is_number_integer())
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
+			if(data["content"].is_null()||!data["content"].is_array())
 				return false;
+			
+			/* if(data["action_id"].is_null()||!data["action_id"].is_number_integer() */
+			/* 		||data["plan_id"].is_null()||!data["plan_id"].is_number_integer()) */
+			/* 	return false; */
+			std::for_each(data["content"].begin(), data["content"].end(), [&](nlohmann::basic_json<>& j){
+						IFFALSE(j["action_id"].is_null()||!j["action_id"].is_number_integer());
+						IFFALSE(j["plan_id"].is_null()||!j["plan_id"].is_number_integer());
+					});
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::CharacterParameterVersion))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["version"].is_null()||!data["version"].is_number_integer())
 				return false;
 
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::Detector))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["content"].is_null()||!data["content"].is_array())
 				return false;
 			
@@ -95,6 +109,8 @@ bool CheckIfValid(nlohmann::basic_json<>& rqs)
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::FailureConfig))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["config"].is_null()||!data["config"].is_array()) return false;
 			
 			std::for_each(data["config"].begin(),data["config"].end(), [&](nlohmann::basic_json<>& j){
@@ -108,6 +124,8 @@ bool CheckIfValid(nlohmann::basic_json<>& rqs)
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::Failure))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["failure"].is_null()||!data["failure"].is_array())
 				return false;
 			std::for_each(data["failure"].begin(), data["failure"].end(), [&](nlohmann::basic_json<>& j){
@@ -118,6 +136,8 @@ bool CheckIfValid(nlohmann::basic_json<>& rqs)
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::FollowPhaseTable))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["table"].is_null()||!data["table"].is_array()) return false;
 			
 			std::for_each(data["table"].begin(),data["table"].end(), [&](nlohmann::basic_json<>& j){
@@ -134,10 +154,14 @@ bool CheckIfValid(nlohmann::basic_json<>& rqs)
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::IdentificationCode))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::LightStatus))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["light_group"].is_null()||!data["light_group"].is_array()) return false;
 			
 			std::for_each(data["light_group"].begin(),data["light_group"].end(), [&](nlohmann::basic_json<>& j){
@@ -148,6 +172,8 @@ bool CheckIfValid(nlohmann::basic_json<>& rqs)
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::PedestrianDetector))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["content"].is_null()||!data["content"].is_array()) return false;
 			
 			std::for_each(data["content"].begin(),data["content"].end(), [&](nlohmann::basic_json<>& j){
@@ -163,6 +189,8 @@ bool CheckIfValid(nlohmann::basic_json<>& rqs)
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::Phase))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["status"].is_null()||!data["status"].is_array()) return false;
 			
 			std::for_each(data["status"].begin(),data["status"].end(), [&](nlohmann::basic_json<>& j){
@@ -194,6 +222,8 @@ bool CheckIfValid(nlohmann::basic_json<>& rqs)
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::PhaseSequenceTable))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["phasesequence"].is_null()||!data["phasesequence"].is_array()) return false;
 			
 			std::for_each(data["phasesequence"].begin(),data["phasesequence"].end(), [&](nlohmann::basic_json<>& j){
@@ -206,6 +236,8 @@ bool CheckIfValid(nlohmann::basic_json<>& rqs)
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::PriorityConfig))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["config"].is_null()||!data["config"].is_array()) return false;
 			
 			std::for_each(data["config"].begin(),data["config"].end(), [&](nlohmann::basic_json<>& j){
@@ -230,10 +262,14 @@ bool CheckIfValid(nlohmann::basic_json<>& rqs)
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::RemoteControl))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["control_type"].is_null()||!data["control_type"].is_number_integer()) return false;
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::Schedule))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["plan"].is_null()||!data["plan"].is_array()) return false;
 			
 			std::for_each(data["plan"].begin(),data["plan"].end(), [&](nlohmann::basic_json<>& j){
@@ -248,6 +284,8 @@ bool CheckIfValid(nlohmann::basic_json<>& rqs)
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::SchemaTable))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["schema"].is_null()||!data["schema"].is_array()) return false;
 			
 			std::for_each(data["schema"].begin(),data["schema"].end(), [&](nlohmann::basic_json<>& j){
@@ -261,6 +299,8 @@ bool CheckIfValid(nlohmann::basic_json<>& rqs)
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::SemaphoreGroup))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["group"].is_null()||!data["group"].is_array()) return false;
 			
 			std::for_each(data["group"].begin(),data["group"].end(), [&](nlohmann::basic_json<>& j){
@@ -278,11 +318,15 @@ bool CheckIfValid(nlohmann::basic_json<>& rqs)
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::Time))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["timestamp"].is_null()||!data["timestamp"].is_number_integer()) return false;
 
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::TimeTable))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["table"].is_null()||!data["table"].is_array()) return false;
 			
 			std::for_each(data["table"].begin(),data["table"].end(), [&](nlohmann::basic_json<>& j){
@@ -298,6 +342,8 @@ bool CheckIfValid(nlohmann::basic_json<>& rqs)
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::TimingScheme))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["scheme"].is_null()||!data["scheme"].is_array()) return false;
 			
 			std::for_each(data["scheme"].begin(),data["scheme"].end(), [&](nlohmann::basic_json<>& j){
@@ -312,6 +358,8 @@ bool CheckIfValid(nlohmann::basic_json<>& rqs)
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::TrafficInfo))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["detector"].is_null()||!data["detector"].is_array()) return false;
 			
 			std::for_each(data["detector"].begin(),data["detector"].end(), [&](nlohmann::basic_json<>& j){
@@ -325,6 +373,8 @@ bool CheckIfValid(nlohmann::basic_json<>& rqs)
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::UnitParameter))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["boot_yellow"].is_null()||!data["boot_yellow"].is_number_integer()) return false;
 			if(data["boot_red"].is_null()||!data["boot_red"].is_number_integer()) return false;
 			if(data["gps_sync_time"].is_null()||!data["gps_sync_time"].is_number_integer()) return false;
@@ -342,11 +392,15 @@ bool CheckIfValid(nlohmann::basic_json<>& rqs)
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::Version))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["version"].is_null()||!data["version"].is_number_integer()) return false;
 
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::WorkMode))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["constant_cycle"].is_null()||!data["constant_cycle"].is_number_integer()) return false;
 			if(data["reaction"].is_null()||!data["reaction"].is_number_integer()) return false;
 			if(data["mannual"].is_null()||!data["mannual"].is_number_integer()) return false;
@@ -358,6 +412,8 @@ bool CheckIfValid(nlohmann::basic_json<>& rqs)
 		}else
 		if(rqs["meta"]["type"].get<std::string>().compare(IFTYPE::WorkStatus))
 		{
+			typeValid=true;
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(data["is_auto"].is_null()||!data["is_auto"].is_number_integer()) return false;
 			if(data["workmode"].is_null()||!data["workmode"].is_number_integer()) return false;
 			if(data["plan_number"].is_null()||!data["plan_number"].is_number_integer()) return false;
@@ -365,8 +421,8 @@ bool CheckIfValid(nlohmann::basic_json<>& rqs)
 			if(data["green_signal_number"].is_null()||!data["green_signal_number"].is_number_integer()) return false;
 			
 		}
-		
 
+		if(!typeValid) return false;
 	}
 
 	LOGINFO<<"Request Validated";
@@ -381,7 +437,7 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 		InsPack packer;
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::ActionTable))
 		{
-			LOGINFO<<"Instruction"<<rqs["meta"]["type"].get<std::string>();
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
 				LOGINFO<<"Instruction Type: Query";
@@ -390,18 +446,30 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 			{
 				LOGINFO<<"Instruction Type: Setting";
 				auto data = rqs["data"];
-				DATA_CONTENT::ActionTable::para content;
-				bzero(&content, sizeof(content));
-				
-				content.action_id = data["action_id"].get<uint8_t>();
-				content.plan_id = data["plan_id"].get<uint8_t>();
+				auto j_arr = data["content"];
+				using cn_t = DATA_CONTENT::ActionTable::para;
+				cn_t* content = new cn_t[j_arr.size()];
 
-				packer.Set(InsType::ActionTableSetting,
-						RESERVE::DEFAULT,reinterpret_cast<const unsigned char*>(&content),sizeof content);
+				bzero(content, j_arr.size()*sizeof(cn_t));
+
+				for(int i=0; i<j_arr.size();i++)
+				{
+					content[i].action_id=j_arr[i]["action_id"].get<uint8_t>();
+					content[i].plan_id=j_arr[i]["plan_id"].get<uint8_t>();
+				}
+
+				uint8_t table_number[5]={0x31,0x31,0x31,0x31,0x31};
+				/* packer.Set(InsType::ActionTableSetting, RESERVE::DEFAULT, */
+				packer.Set(InsType::ActionTableSetting, table_number,
+						reinterpret_cast<const unsigned char*>(content),
+						j_arr.size()*sizeof(cn_t), j_arr.size());
+
+				delete[] content;
 			}
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::CharacterParameterVersion))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
 				packer.Set(InsType::CharacterParameterVersionQuery);
@@ -419,17 +487,22 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::Detector))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
+				/* packer.Set(InsType::ActionTableQuery); */
 				packer.Set(InsType::DetectorQuery);
 			}else if(CheckIfSetting(rqs))
 			{
+				LOGINFO<<"Instruction Type: Setting";
+				/* packer.Set(InsType::ActionTableQuery); */
 				auto data = rqs["data"];
 				auto j_arr = data["content"];
 				using cn_t = DATA_CONTENT::Detector::para;
 				cn_t* content	= new cn_t[j_arr.size()];
 
-				bzero(&content, j_arr.size()*sizeof(cn_t));
+				bzero(content, j_arr.size()*sizeof(cn_t));
 				
 				for(int i=0; i<j_arr.size();i++)
 				{
@@ -450,8 +523,8 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 				}
 				
 				packer.Set(InsType::DetectorSetting,RESERVE::DEFAULT,
-						reinterpret_cast<const unsigned char*>(&content),
-						j_arr.size()*sizeof(cn_t));
+						reinterpret_cast<const unsigned char*>(content),
+						j_arr.size()*sizeof(cn_t), j_arr.size());
 
 				delete[] content;
 			}
@@ -459,17 +532,22 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::FailureConfig))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
+				packer.Set(InsType::ActionTableQuery);
 				packer.Set(InsType::FailureQuery);
 			}else if(CheckIfSetting(rqs))
 			{
+				LOGINFO<<"Instruction Type: Setting";
+				packer.Set(InsType::ActionTableQuery);
 				auto data = rqs["data"];
 				auto j_arr = data["config"];
 				using cn_t = DATA_CONTENT::FailureConfig::para;
 				cn_t* content = new cn_t[j_arr.size()];
 
-				bzero(&content, j_arr.size()*sizeof(cn_t));
+				bzero(content, j_arr.size()*sizeof(cn_t));
 				
 				for(int i=0; i<j_arr.size();i++)
 				{
@@ -480,7 +558,7 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 				}
 				
 				packer.Set(InsType::DetectorSetting,RESERVE::DEFAULT,
-						reinterpret_cast<const unsigned char*>(&content),
+						reinterpret_cast<const unsigned char*>(content),
 						j_arr.size()*sizeof(cn_t));
 
 				delete[] content;
@@ -489,24 +567,35 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::Failure))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
+				packer.Set(InsType::ActionTableQuery);
 				packer.Set(InsType::FailureQuery);
 			}
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::FollowPhaseTable))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
+				packer.Set(InsType::ActionTableQuery);
 				packer.Set(InsType::FollowPhaseTableQuery);
 			}else if(CheckIfSetting(rqs))
 			{
+				LOGINFO<<"Instruction Type: Setting";
+				packer.Set(InsType::ActionTableQuery);
 				auto data = rqs["data"];
 				auto j_arr = data["table"];
 				using cn_t = DATA_CONTENT::FollowPhaseTable::para;
 				cn_t* content = new cn_t[j_arr.size()];
+				/* cn_t* content = new cn_t[1]; */
 
-				bzero(&content, j_arr.size()*sizeof(cn_t));
+				bzero(content, j_arr.size()*sizeof(cn_t));
+
+				LOGDBG<<"Init Json Var";
 				
 				for(int i=0; i<j_arr.size();i++)
 				{
@@ -519,9 +608,12 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 					content[i].red_time = j_arr[i]["red_time"].get<uint8_t>();
 					content[i].green_flash = j_arr[i]["green_flash"].get<uint8_t>();
 				}
+
+				LOGDBG<<"Parsed data";
+
 				
 				packer.Set(InsType::FollowPhaseTableSetting,RESERVE::DEFAULT,
-						reinterpret_cast<const unsigned char*>(&content),
+						reinterpret_cast<const unsigned char*>(content),
 						j_arr.size()*sizeof(cn_t));
 
 				delete[] content;
@@ -530,32 +622,40 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::IdentificationCode))
 		{
+
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
 				packer.Set(InsType::IdentificationCodeQuery);
 			}
 
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::LightStatus))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
 				packer.Set(InsType::LightStatusQuery);
 			}
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::PedestrianDetector))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
 				packer.Set(InsType::PedestrianDetectorQuery);
 			}else if(CheckIfSetting(rqs))
 			{
+				LOGINFO<<"Instruction Type: Setting";
 				auto data = rqs["data"];
 				auto j_arr = data["content"];
 				using cn_t = DATA_CONTENT::PedestrianDetector::para;
 				cn_t* content = new cn_t[j_arr.size()];
 
-				bzero(&content, j_arr.size()*sizeof(cn_t));
+				bzero(content, j_arr.size()*sizeof(cn_t));
 				
 				for(int i=0; i<j_arr.size();i++)
 				{
@@ -569,7 +669,7 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 				}
 				
 				packer.Set(InsType::PedestrianDetectorSetting,RESERVE::DEFAULT,
-						reinterpret_cast<const unsigned char*>(&content),
+						reinterpret_cast<const unsigned char*>(content),
 						j_arr.size()*sizeof(cn_t));
 
 				delete[] content;
@@ -578,17 +678,20 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::Phase))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
 				packer.Set(InsType::PhaseQuery);
 			}else if(CheckIfSetting(rqs))
 			{
+				LOGINFO<<"Instruction Type: Setting";
 				auto data = rqs["data"];
 				auto j_arr = data["status"];
 				using cn_t = DATA_CONTENT::Phase::para;
 				cn_t* content = new cn_t[j_arr.size()];
 
-				bzero(&content, j_arr.size()*sizeof(cn_t));
+				bzero(content, j_arr.size()*sizeof(cn_t));
 				
 				for(int i=0; i<j_arr.size();i++)
 				{
@@ -618,7 +721,7 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 				}
 				
 				packer.Set(InsType::PhaseSetting,RESERVE::DEFAULT,
-						reinterpret_cast<const unsigned char*>(&content),
+						reinterpret_cast<const unsigned char*>(content),
 						j_arr.size()*sizeof(cn_t));
 
 				delete[] content;
@@ -627,17 +730,20 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::PhaseSequenceTable))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
 				packer.Set(InsType::PhaseSequenceTableQuery);
 			}else if(CheckIfSetting(rqs))
 			{
+				LOGINFO<<"Instruction Type: Setting";
 				auto data = rqs["data"];
 				auto j_arr = data["phasesequence"];
 				using cn_t = DATA_CONTENT::PhaseSequenceTable::para;
 				cn_t* content = new cn_t[j_arr.size()];
 
-				bzero(&content, j_arr.size()*sizeof(cn_t));
+				bzero(content, j_arr.size()*sizeof(cn_t));
 				
 				for(int i=0; i<j_arr.size();i++)
 				{
@@ -647,7 +753,7 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 				}
 				
 				packer.Set(InsType::PhaseSequenceTableSetting,RESERVE::DEFAULT,
-						reinterpret_cast<const unsigned char*>(&content),
+						reinterpret_cast<const unsigned char*>(content),
 						j_arr.size()*sizeof(cn_t));
 
 				delete[] content;
@@ -656,17 +762,20 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::PriorityConfig))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
 				packer.Set(InsType::PriorityConfigQuery);
 			}else if(CheckIfSetting(rqs))
 			{
+				LOGINFO<<"Instruction Type: Setting";
 				auto data = rqs["data"];
 				auto j_arr = data["config"];
 				using cn_t = DATA_CONTENT::PriorityConfig::para;
 				cn_t* content = new cn_t[j_arr.size()];
 
-				bzero(&content, j_arr.size()*sizeof(cn_t));
+				bzero(content, j_arr.size()*sizeof(cn_t));
 				
 				for(int i=0; i<j_arr.size();i++)
 				{
@@ -690,7 +799,7 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 				}
 				
 				packer.Set(InsType::PriorityConfigSetting,RESERVE::DEFAULT,
-						reinterpret_cast<const unsigned char*>(&content),
+						reinterpret_cast<const unsigned char*>(content),
 						j_arr.size()*sizeof(cn_t));
 
 				delete[] content;
@@ -699,8 +808,10 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::RemoteControl))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfSetting(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
 
 				auto data = rqs["data"];
 				DATA_CONTENT::RemoteControl::para content;
@@ -715,17 +826,20 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::Schedule))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
 				packer.Set(InsType::ScheduleQuery);
 			}else if(CheckIfSetting(rqs))
 			{
+				LOGINFO<<"Instruction Type: Setting";
 				auto data = rqs["data"];
 				auto j_arr = data["plan"];
 				using cn_t = DATA_CONTENT::Schedule::para;
 				cn_t* content = new cn_t[j_arr.size()];
 
-				bzero(&content, j_arr.size()*sizeof(cn_t));
+				bzero(content, j_arr.size()*sizeof(cn_t));
 				
 				for(int i=0; i<j_arr.size();i++)
 				{
@@ -738,7 +852,7 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 				}
 				
 				packer.Set(InsType::ScheduleSetting,RESERVE::DEFAULT,
-						reinterpret_cast<const unsigned char*>(&content),
+						reinterpret_cast<const unsigned char*>(content),
 						j_arr.size()*sizeof(cn_t));
 
 				delete[] content;
@@ -747,17 +861,20 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::SchemaTable))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
 				packer.Set(InsType::SchemaTableQuery);
 			}else if(CheckIfSetting(rqs))
 			{
+				LOGINFO<<"Instruction Type: Setting";
 				auto data = rqs["data"];
 				auto j_arr = data["schema"];
 				using cn_t = DATA_CONTENT::SchemaTable::para;
 				cn_t* content = new cn_t[j_arr.size()];
 
-				bzero(&content, j_arr.size()*sizeof(cn_t));
+				bzero(content, j_arr.size()*sizeof(cn_t));
 				
 				for(int i=0; i<j_arr.size();i++)
 				{
@@ -769,7 +886,7 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 				}
 				
 				packer.Set(InsType::SchemaTableSetting,RESERVE::DEFAULT,
-						reinterpret_cast<const unsigned char*>(&content),
+						reinterpret_cast<const unsigned char*>(content),
 						j_arr.size()*sizeof(cn_t));
 
 				delete[] content;
@@ -778,17 +895,20 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::SemaphoreGroup))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
 				packer.Set(InsType::SemaphoreGroupQuery);
 			}else if(CheckIfSetting(rqs))
 			{
+				LOGINFO<<"Instruction Type: Setting";
 				auto data = rqs["data"];
 				auto j_arr = data["group"];
 				using cn_t = DATA_CONTENT::SemaphoreGroup::para;
 				cn_t* content = new cn_t[j_arr.size()];
 
-				bzero(&content, j_arr.size()*sizeof(cn_t));
+				bzero(content, j_arr.size()*sizeof(cn_t));
 				
 				for(int i=0; i<j_arr.size();i++)
 				{
@@ -803,7 +923,7 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 				}
 				
 				packer.Set(InsType::SemaphoreGroupSetting,RESERVE::DEFAULT,
-						reinterpret_cast<const unsigned char*>(&content),
+						reinterpret_cast<const unsigned char*>(content),
 						j_arr.size()*sizeof(cn_t));
 
 				delete[] content;
@@ -812,11 +932,14 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::Time))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
 				packer.Set(InsType::TimeQuery);
 			}else if(CheckIfSetting(rqs))
 			{
+				LOGINFO<<"Instruction Type: Setting";
 				auto data = rqs["data"];
 				DATA_CONTENT::Time::para content;
 				bzero(&content, sizeof(content));
@@ -830,17 +953,20 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::TimeTable))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
 				packer.Set(InsType::TimeTableQuery);
 			}else if(CheckIfSetting(rqs))
 			{
+				LOGINFO<<"Instruction Type: Setting";
 				auto data = rqs["data"];
 				auto j_arr = data["table"];
 				using cn_t = DATA_CONTENT::TimeTable::para;
 				cn_t* content = new cn_t[j_arr.size()];
 
-				bzero(&content, j_arr.size()*sizeof(cn_t));
+				bzero(content, j_arr.size()*sizeof(cn_t));
 				
 				for(int i=0; i<j_arr.size();i++)
 				{
@@ -853,7 +979,7 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 				}
 				
 				packer.Set(InsType::TimeTableSetting,RESERVE::DEFAULT,
-						reinterpret_cast<const unsigned char*>(&content),
+						reinterpret_cast<const unsigned char*>(content),
 						j_arr.size()*sizeof(cn_t));
 
 				delete[] content;
@@ -862,17 +988,20 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::TimingScheme))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
 				packer.Set(InsType::TimingSchemeQuery);
 			}else if(CheckIfSetting(rqs))
 			{
+				LOGINFO<<"Instruction Type: Setting";
 				auto data = rqs["data"];
 				auto j_arr = data["scheme"];
 				using cn_t = DATA_CONTENT::TimingScheme::para;
 				cn_t* content = new cn_t[j_arr.size()];
 
-				bzero(&content, j_arr.size()*sizeof(cn_t));
+				bzero(content, j_arr.size()*sizeof(cn_t));
 				
 				for(int i=0; i<j_arr.size();i++)
 				{
@@ -884,7 +1013,7 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 				}
 				
 				packer.Set(InsType::TimingSchemeSetting,RESERVE::DEFAULT,
-						reinterpret_cast<const unsigned char*>(&content),
+						reinterpret_cast<const unsigned char*>(content),
 						j_arr.size()*sizeof(cn_t));
 
 				delete[] content;
@@ -893,11 +1022,14 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::UnitParameter))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
 				packer.Set(InsType::UnitParameterQuery);
 			}else if(CheckIfSetting(rqs))
 			{
+				LOGINFO<<"Instruction Type: Setting";
 				auto data = rqs["data"];
 				DATA_CONTENT::UnitParameter::para content;
 				bzero(&content, sizeof(content));
@@ -924,19 +1056,24 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::Version))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
 				packer.Set(InsType::VersionQuery);
 			}
 
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::WorkMode))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
 				packer.Set(InsType::WorkModeQuery);
 			}else if(CheckIfSetting(rqs))
 			{
+				LOGINFO<<"Instruction Type: Setting";
 				auto data = rqs["data"];
 				DATA_CONTENT::WorkMode::para content;
 				bzero(&content, sizeof(content));
@@ -969,8 +1106,10 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 		}else
 		if(!rqs["meta"]["type"].get<std::string>().compare(IFTYPE::WorkStatus))
 		{
+			LOGINFO<<"Instruction "<<rqs["meta"]["type"].get<std::string>();
 			if(CheckIfQuery(rqs))
 			{
+				LOGINFO<<"Instruction Type: Query";
 				packer.Set(InsType::WorkStatusQuery);
 			}
 		}
@@ -978,9 +1117,11 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 		if(packer.IfValid())
 		{
 			LOGINFO<<"Transform Success";
-			return std::string(
+			LOGDBG<<"Instruction: \n\t"<<ToHexBytes(packer.GetBuff(), packer.GetBuffLength()).str();
+			auto res= std::string(
 				reinterpret_cast<const char*>(packer.GetBuff()),
 				packer.GetBuffLength());
+			return res;
 		}else{
 			LOGWARN<<"Transform Failed";
 			return "";
@@ -989,11 +1130,15 @@ std::string GetInstruction(nlohmann::basic_json<>& rqs)
 
 #include <bitset>
 // return json str
-std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
+std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4)
+{
 	LOGINFO<<"Generating Response from parser";
 	/* InsParser parser; */
 	/* parser.Parse(reinterpret_cast<const unsigned char*> */
 	/* 		(res_ins.c_str()),res_ins.size()); */
+
+	LOGDBG<<"Content Length: "<<parser->GetContentLen();
+	LOGDBG<<"Content: \n\t"<<ToHexBytes(parser->GetContent(), parser->GetContentLen()).str();
 
 	json j_res;
 	json j_meta;
@@ -1002,7 +1147,7 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 	json j_data;
 	
 	#define GETCONTENT reinterpret_cast<const cn_t*>(parser->GetContent())
-	#define GETCONTENTARR reinterpret_cast<const cn_t*>(parser->GetContent()+i*sizeof(cn_t))
+	#define GETCONTENTARR reinterpret_cast<const cn_t*>(parser->GetContent()+1+i*sizeof(cn_t))
 
 	switch(parser->GetInsType())
 	{
@@ -1012,8 +1157,18 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 			/* machine_conn->UpdateHeartBeat(); */
 			break;
 		}
+		case InsType::RemoteControlSettingReply:
+		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
+			j_meta["type"]=IFTYPE::RemoteControl;
+
+			j_data["result"]=true;
+			j_res["meta"]=j_meta;
+			j_res["data"]=j_data;
+		}
 		case InsType::TrafficInfoUpload:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			using cn_t = DATA_CONTENT::TrafficInfo::para;
 			j_meta["type"]=IFTYPE::TrafficInfo;
 			json j_content, j_content_ele;
@@ -1032,6 +1187,9 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 				j_content.push_back(j_content_ele);
 			}
 			
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
 			j_data["detector"]=j_content;
 
 			j_res["meta"]=j_meta;
@@ -1040,6 +1198,7 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		}
 		case InsType::WorkStatusQueryReply:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			using cn_t = DATA_CONTENT::WorkStatus::para;
 			j_meta["type"]=IFTYPE::WorkStatus;
 			
@@ -1056,6 +1215,7 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		}
 		case InsType::WorkStatusUpload:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			using cn_t = DATA_CONTENT::WorkStatus::para;
 			j_meta["type"]=IFTYPE::WorkStatus;
 			
@@ -1073,27 +1233,61 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		case InsType::LightStatusQueryReply:
 		case InsType::LightStatusUpload:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			j_meta["type"]=IFTYPE::LightStatus;
 			using cn_t = DATA_CONTENT::LightStatus::para;
 			json j_content, j_content_ele;
-			
-			for(int i=0;i<parser->GetContentLen()/sizeof(cn_t);i++)
+
+			int count=0;
+			std::bitset<8> bs;
+			for(int i=0;i<parser->GetContentLen();i++)
 			{
-				/* reinterpret_cast<const cn_t*>(parser.GetContent()+i*sizeof(cn_t)); */
-				j_content_ele["status"]=GETCONTENTARR->light_1;
-				j_content.push_back(j_content_ele);
-				j_content_ele["status"]=GETCONTENTARR->light_2;
-				j_content.push_back(j_content_ele);
-				j_content_ele["status"]=GETCONTENTARR->light_3;
-				j_content.push_back(j_content_ele);
-				j_content_ele["status"]=GETCONTENTARR->light_4;
-				j_content.push_back(j_content_ele);
-				j_content_ele["status"]=GETCONTENTARR->light_5;
-				j_content.push_back(j_content_ele);
-				j_content_ele["status"]=GETCONTENTARR->light_6;
-				j_content.push_back(j_content_ele);
+				bs=0;
+				bs|=parser->GetContent()[i];
+				for(int j=0;j<4;j++)
+				{
+					if(bs[j*2]==0)
+					{
+						if(bs[j*2+1]==0)
+						{
+							j_content_ele["status"]="off";
+						}else{
+							j_content_ele["status"]="red";
+						}
+					}else{
+						if(bs[j*2+1]==0)
+						{
+							j_content_ele["status"]="yellow";
+						}else{
+							j_content_ele["status"]="green";
+						}
+					}
+					j_content_ele["id"]=count;
+					j_content.push_back(j_content_ele);
+					count++;
+				}
 			}
+
+			/* for(int i=0;i<parser->GetContentLen()/sizeof(cn_t);i++) */
+			/* { */
+			/* 	/1* reinterpret_cast<const cn_t*>(parser.GetContent()+i*sizeof(cn_t)); *1/ */
+			/* 	j_content_ele["status"]=GETCONTENTARR->light_1; */
+			/* 	j_content.push_back(j_content_ele); */
+			/* 	j_content_ele["status"]=GETCONTENTARR->light_2; */
+			/* 	j_content.push_back(j_content_ele); */
+			/* 	j_content_ele["status"]=GETCONTENTARR->light_3; */
+			/* 	j_content.push_back(j_content_ele); */
+			/* 	j_content_ele["status"]=GETCONTENTARR->light_4; */
+			/* 	j_content.push_back(j_content_ele); */
+			/* 	j_content_ele["status"]=GETCONTENTARR->light_5; */
+			/* 	j_content.push_back(j_content_ele); */
+			/* 	j_content_ele["status"]=GETCONTENTARR->light_6; */
+			/* 	j_content.push_back(j_content_ele); */
+			/* } */
 			
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
 			j_data["light_group"]=j_content;
 
 			j_res["meta"]=j_meta;
@@ -1103,9 +1297,13 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		case InsType::TimeQueryReply:
 		case InsType::TimeSettingReply:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			using cn_t = DATA_CONTENT::Time::para;
 			j_meta["type"]=IFTYPE::Time;
 			
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
 			j_data["timestamp"]=*GETCONTENT;
 			
 			j_res["meta"]=j_meta;
@@ -1115,6 +1313,7 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		case InsType::SemaphoreGroupQueryReply:
 		case InsType::SemaphoreGroupSettingReply:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			j_meta["type"]=IFTYPE::SemaphoreGroup;
 			using cn_t = DATA_CONTENT::SemaphoreGroup::para;
 			json j_content, j_content_ele;
@@ -1141,6 +1340,9 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 
 			}
 			
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
 			j_data["group"]=j_content;
 
 			j_res["meta"]=j_meta;
@@ -1150,6 +1352,7 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		case InsType::PhaseQueryReply:
 		case InsType::PhaseSettingReply:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			j_meta["type"]=IFTYPE::Phase;
 			using cn_t = DATA_CONTENT::Phase::para;
 			json j_content, j_content_ele;
@@ -1205,7 +1408,9 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 				j_content.push_back(j_content_ele);
 
 			}
-			
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
 			j_data["status"]=j_content;
 
 			j_res["meta"]=j_meta;
@@ -1215,6 +1420,7 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		case InsType::TimingSchemeQueryReply:
 		case InsType::TimingSchemeSettingReply:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			j_meta["type"]=IFTYPE::TimingScheme;
 			using cn_t = DATA_CONTENT::TimingScheme::para;
 			json j_content, j_content_ele;
@@ -1235,6 +1441,9 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 
 			}
 			
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
 			j_data["scheme"]=j_content;
 
 			j_res["meta"]=j_meta;
@@ -1244,6 +1453,7 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		case InsType::ScheduleQueryReply:
 		case InsType::ScheduleSettingReply:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			j_meta["type"]=IFTYPE::Schedule;
 			using cn_t = DATA_CONTENT::Schedule::para;
 			json j_content, j_content_ele;
@@ -1264,6 +1474,9 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 
 			}
 			
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
 			j_data["plan"]=j_content;
 
 			j_res["meta"]=j_meta;
@@ -1273,18 +1486,25 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		case InsType::WorkModeQueryReply:
 		case InsType::WorkModeSettingReply:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			using cn_t = DATA_CONTENT::Time::para;
 			j_meta["type"]=IFTYPE::WorkMode;
 			/* uint8_t abyte = reinterpret_cast<const unsigned char*>(parser.GetContent()); */
 			std::bitset<8> abyte(*const_cast<uint8_t*>(parser->GetContent()));
 			
-			j_data["constant_cycle"]=static_cast<int>(abyte[0]);
-			j_data["reaction"]=static_cast<int>(abyte[1]);
-			j_data["mannual"]=static_cast<int>(abyte[2]);
-			j_data["off"]=static_cast<int>(abyte[3]);
-			j_data["yellow_flash"]=static_cast<int>(abyte[4]);
-			j_data["phase_lock"]=static_cast<int>(abyte[5]);
-			j_data["certain_phase"]=static_cast<int>(abyte[6]);
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
+			{
+				j_data["constant_cycle"]=static_cast<int>(abyte[0]);
+				j_data["reaction"]=static_cast<int>(abyte[1]);
+				j_data["mannual"]=static_cast<int>(abyte[2]);
+				j_data["off"]=static_cast<int>(abyte[3]);
+				j_data["yellow_flash"]=static_cast<int>(abyte[4]);
+				j_data["phase_lock"]=static_cast<int>(abyte[5]);
+				j_data["certain_phase"]=static_cast<int>(abyte[6]);
+
+			}
 
 			j_res["meta"]=j_meta;
 			j_res["data"]=j_data;
@@ -1293,6 +1513,7 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		case InsType::FailureQueryReply:
 		case InsType::FailureUpload:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			j_meta["type"]=IFTYPE::Failure;
 			using cn_t = DATA_CONTENT::Failure::para;
 			json j_content, j_content_ele;
@@ -1311,6 +1532,9 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 
 			}
 			
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
 			j_data["failure"]=j_content;
 
 			j_res["meta"]=j_meta;
@@ -1320,9 +1544,13 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		case InsType::VersionQueryReply:
 		case InsType::VersionUpload:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			using cn_t = DATA_CONTENT::Version::para;
 			j_meta["type"]=IFTYPE::Version;
 			
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
 			j_data["version"]=GETCONTENT->info;
 
 			j_res["meta"]=j_meta;
@@ -1332,9 +1560,13 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		case InsType::CharacterParameterVersionQueryReply:
 		case InsType::CharacterParameterVersionSettingReply:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			using cn_t = DATA_CONTENT::CharacterParameterVersion::para;
 			j_meta["type"]=IFTYPE::CharacterParameterVersion;
 			
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
 			j_data["version"]= *const_cast<uint8_t*>(parser->GetContent());
 
 			j_res["meta"]=j_meta;
@@ -1343,11 +1575,13 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		}
 		case InsType::IdentificationCodeQueryReply:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			break;
 		}
 		case InsType::DetectorQueryReply:
 		case InsType::DetectorSettingReply:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			j_meta["type"]=IFTYPE::Detector;
 			using cn_t = DATA_CONTENT::Detector::para;
 			json j_content, j_content_ele;
@@ -1387,6 +1621,9 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 
 			}
 			
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
 			j_data["content"]=j_content;
 
 			j_res["meta"]=j_meta;
@@ -1396,6 +1633,7 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		case InsType::PhaseSequenceTableQueryReply:
 		case InsType::PhaseSequenceTableSettingReply:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			j_meta["type"]=IFTYPE::PhaseSequenceTable;
 			using cn_t = DATA_CONTENT::PhaseSequenceTable::para;
 			json j_content, j_content_ele;
@@ -1410,6 +1648,9 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 
 			}
 			
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
 			j_data["phasesequence"]=j_content;
 
 			j_res["meta"]=j_meta;
@@ -1419,6 +1660,7 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		case InsType::SchemaTableQueryReply:
 		case InsType::SchemaTableSettingReply:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			j_meta["type"]=IFTYPE::SchemaTable;
 			using cn_t = DATA_CONTENT::SchemaTable::para;
 			json j_content, j_content_ele;
@@ -1439,6 +1681,9 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 
 			}
 			
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
 			j_data["schema"]=j_content;
 
 			j_res["meta"]=j_meta;
@@ -1448,11 +1693,23 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		case InsType::ActionTableQueryReply:
 		case InsType::ActionTableSettingReply:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			using cn_t = DATA_CONTENT::ActionTable::para;
 			j_meta["type"]=IFTYPE::ActionTable;
+
+			json j_content, j_content_ele;
+
+			for(int i=0; i<parser->GetContentLen()/sizeof(cn_t);i++)
+			{
+				j_content_ele["action_id"]=GETCONTENTARR->action_id;
+				j_content_ele["plan_id"]=GETCONTENTARR->plan_id;
+				j_content.push_back(j_content_ele);
+			}
 			
-			j_data["action_id"]=GETCONTENT->action_id;
-			j_data["plan_id"]=GETCONTENT->plan_id;
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
+				j_data["content"]=j_content;
 
 			j_res["meta"]=j_meta;
 			j_res["data"]=j_data;
@@ -1462,6 +1719,7 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		case InsType::TimeTableQueryReply:
 		case InsType::TimeTableSettingReply:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			j_meta["type"]=IFTYPE::TimeTable;
 			using cn_t = DATA_CONTENT::TimeTable::para;
 			json j_content, j_content_ele;
@@ -1484,6 +1742,9 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 
 			}
 			
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
 			j_data["table"]=j_content;
 
 			j_res["meta"]=j_meta;
@@ -1493,6 +1754,7 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		case InsType::FollowPhaseTableQueryReply:
 		case InsType::FollowPhaseTableSettingReply:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			j_meta["type"]=IFTYPE::FollowPhaseTable;
 			using cn_t = DATA_CONTENT::FollowPhaseTable::para;
 			json j_content, j_content_ele;
@@ -1519,6 +1781,9 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 
 			}
 			
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
 			j_data["table"]=j_content;
 
 			j_res["meta"]=j_meta;
@@ -1528,9 +1793,14 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		case InsType::UnitParameterQueryReply:
 		case InsType::UnitParameterSettingReply:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			using cn_t = DATA_CONTENT::UnitParameter::para;
 			j_meta["type"]=IFTYPE::UnitParameter;
 			
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
+			{
 			j_data["boot_yellow"]=GETCONTENT->boot_yellow;
 			j_data["boot_red"]=GETCONTENT->boot_red;
 			j_data["gps_sync_time"]=GETCONTENT->gps_sync_time;
@@ -1546,13 +1816,17 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 			j_data["min_red"]=GETCONTENT->min_red;
 			j_data["pedastrain_auto_clear"]=GETCONTENT->pedastrain_auto_clear;
 
+			}
+
 			j_res["meta"]=j_meta;
+			
 			j_res["data"]=j_data;
 			break;
 		}
 		case InsType::PedestrianDetectorQueryReply:
 		case InsType::PedestrianDetectorSettingReply:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			j_meta["type"]=IFTYPE::PedestrianDetector;
 			using cn_t = DATA_CONTENT::PedestrianDetector::para;
 			json j_content, j_content_ele;
@@ -1575,6 +1849,9 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 
 			}
 			
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
 			j_data["content"]=j_content;
 
 			j_res["meta"]=j_meta;
@@ -1584,6 +1861,7 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		case InsType::FailureConfigQueryReply:
 		case InsType::FailureConfigSettingReply:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			j_meta["type"]=IFTYPE::FailureConfig;
 			using cn_t = DATA_CONTENT::FailureConfig::para;
 			json j_content, j_content_ele;
@@ -1602,6 +1880,9 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 
 			}
 			
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
 			j_data["config"]=j_content;
 
 			j_res["meta"]=j_meta;
@@ -1611,6 +1892,7 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		case InsType::PriorityConfigQueryReply:
 		case InsType::PriorityConfigSettingReply:
 		{
+			LOGINFO<<"Instruction "<<parser->GetInsName();
 			j_meta["type"]=IFTYPE::PriorityConfig;
 			using cn_t = DATA_CONTENT::PriorityConfig::para;
 			json j_content, j_content_ele;
@@ -1651,6 +1933,9 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 
 			}
 			
+			if(parser->GetOperationType()==0x85)
+				j_data["result"]=true;
+			else
 			j_data["config"]=j_content;
 
 			j_res["meta"]=j_meta;
@@ -1659,6 +1944,7 @@ std::string GetResponse(std::shared_ptr<InsParser> parser, std::string ipv4){
 		}
 		default:
 		{
+			LOGWARN<<"Unknown Instruction: "<<parser->GetInsName();
 			break;
 		}
 	}
@@ -1679,6 +1965,8 @@ std::string ProcessRequest(std::string data_str)
 	LOGDBG<<"Json Str is Valid";
 
 	std::string ins_str = GetInstruction(rqs_j);
+	LOGDBG<<"Instruction Size: "<<ins_str.size()<<" Bytes";
+	/* LOGDBG<<"Instruction: "<<ToHexBytes(ins_str.c_str(), ins_str.size()).str(); */
 
 	if(ins_str.empty()){
 		LOGWARN<<"Transform Instruction Failed";

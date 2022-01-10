@@ -79,14 +79,19 @@ void receiver()
 
 					auto pack = connection->PackQ_PopFront();
 					LOGDBG<<"Get Packet Size: "<<pack.size();
+					/* LOGDBG<<"Instruction:\n\t"<<ToHexBytes(pack.c_str(), pack.size()).str(); */
 					
 					/* LOGDBG<<"Content: "<<std::hex<<pack; */
 
 					std::shared_ptr<InsParser> parser =
 						std::make_shared<InsParser>();
-					parser->Parse(
+					if(parser->Parse(
 							reinterpret_cast<const unsigned char*>(pack.c_str()),
-						 	pack.size());
+						 	pack.size())==(uint8_t)-1)
+					{
+						LOGWARN<<"Parse Failed";
+						continue;
+					}
 
 					LOGDBG<<"Parsed Reply";
 
